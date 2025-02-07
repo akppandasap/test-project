@@ -1,0 +1,81 @@
+name: CloudFoundry - Build, Deploy and Test
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: branch to run the workflow on
+        required: true
+        default: 'main'
+        type: string
+
+jobs:
+  build-deploy-test:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.fork == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log Event Data
+        run: echo '${{ toJson(github.event) }}'
+
+      - name: Checkout Code from Commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{github.event.pull_request.head.sha}}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.x'
+
+      # Step 3: Install MBT and dependencies
+      - name: Install MBT and dependencies
+        run: |
+          npm install -g mbt
+          npm install --production
+          npm install -g rimraf
+
+      # Step 4: Install CF Cli
+      - name: Install CF Cli
+        run: |
+            wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | gpg --dearmor -o /usr/share/keyrings/cli.cloudfoundry.org.gpg
+            echo "deb [trusted=yes] https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
+            sudo apt-get update
+            sudo apt-get install cf8-cli
+
+      # Step 5: Download and Install SAP BTP CLI
+      - name: Install BTP CLI
+        run: |
+          dpkg --print-architecture
+          curl -LJO https://tools.hana.ondemand.com/additional/btp-cli-linux-amd64-latest.tar.gz --cookie "eula_3_2_agreed=tools.hana.ondemand.com/developer-license-3_2.txt"
+          tar -xzf btp-cli-linux-amd64-latest.tar.gz
+          ls -a
+          mv linux-amd64/btp /usr/local/bin
+          chmod +x /usr/local/bin/btp
+      
+      # Step 6: Install Multiapps Plugin
+      - name: Install Multiapps Plugin
+        run: |
+          cf add-plugin-repo CF-Community https://plugins.cloudfoundry.org
+          cf install-plugin multiapps -f
+
+      # Step 7: Login to CF
+      - name: Log in to Cloud Foundry
+        run: |
+          cf login -u ${{ secrets.CF_USERNAME }} -p ${{ secrets.CF_PASSWORD }} -o ${{ secrets.CF_ORG }} -s ${{ secrets.CF_SPACE }} -a ${{ secrets.CF_API }}
+        
+          
+      # Step 8: Build the project
+      - name: Build MTA Archive
+        run: npm run build
+
+      # Step 9: Verify MTA Archive built successfully
+      - name: Deploy to CF
+        run: npm run deploy
+
+      # Step 10: Verify MTA Archive built successfully
+      - name: Undeploy from CF
+        run: npm run undeploy
