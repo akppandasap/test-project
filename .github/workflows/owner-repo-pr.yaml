@@ -14,7 +14,8 @@ on:
 
 jobs:
   build-deploy-test:
-    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.fork == false
+    environment:
+          name: ${{ github.event.pull_request.head.repo.fork && 'forked' || 'owner' }}
     runs-on: ubuntu-latest
     steps:
       - name: Log Event Data
