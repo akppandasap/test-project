@@ -20,7 +20,7 @@
     "start": "cds-serve",
     "build": "rimraf resources mta_archives && mbt build --mtar archive",
     "deploy": "cf deploy mta_archives/archive.mtar --retries 1",
-    "undeploy": "cf undeploy test-project --delete-services -delete-service-keys --delete-service-brokers --delete-route --delete-apps -f"
+    "undeploy": "cf undeploy test-project --delete-services -delete-service-keys --delete-service-brokers -f"
   },
   "cds": {
     "sql": {
