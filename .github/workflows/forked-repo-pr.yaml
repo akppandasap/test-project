@@ -7,8 +7,9 @@ on:
 jobs:
   build-deploy-test:
     environment:
-      name: ${{ github.event.pull_request.head.repo.fork == true && 'forked' }}
+      name: forked
     runs-on: ubuntu-latest
+    if: github.event.pull_request.head.repo.fork == true
     steps:
       - name: Log Event Data
         run: echo '${{ toJson(github.event) }}'

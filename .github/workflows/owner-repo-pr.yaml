@@ -15,8 +15,9 @@ on:
 jobs:
   build-deploy-test:
     environment:
-      name: ${{ github.event.pull_request.head.repo.fork == false && 'owner' }}
+      name: owner
     runs-on: ubuntu-latest
+    if: github.event.pull_request.head.repo.fork == false
     steps:
       - name: Log Event Data
         run: echo '${{ toJson(github.event) }}'
