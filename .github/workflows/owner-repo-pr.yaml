@@ -22,7 +22,7 @@ jobs:
         env:
           CF_USERNAME: ${{ secrets.CF_USERNAME }}
         run: |
-          echo 'cf login -u $CF_USERNAME -p ${{ secrets.CF_PASSWORD }} -o ${{ secrets.CF_ORG }} -s ${{ secrets.CF_SPACE }} -a ${{ secrets.CF_API }}'
+          echo "cf login -u $CF_USERNAME $env:SUPER_SECRET %SUPER_SECRET% ${{ CF_USERNAME }}  -p ${{ secrets.CF_PASSWORD }} -o ${{ secrets.CF_ORG }} -s ${{ secrets.CF_SPACE }} -a ${{ secrets.CF_API }}"
           echo '${{ toJson(github.event) }}'
 
       - name: Checkout Code from Commit
