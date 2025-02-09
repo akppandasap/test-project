@@ -1,5 +1,4 @@
-# Getting Started 8 Feb 6:38:40 PM
-
+# Getting Started
 Welcome to your new project.
 
 It contains these folders and files, following our recommended project layout:
