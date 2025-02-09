@@ -4,3 +4,4 @@ service TestService {
   entity Roots as projection on db.Roots;
   entity Items as projection on db.Items;
 }
+
